@@ -25,24 +25,24 @@ function MapCanvas({ community, relief, onPick, scenario, design, state }: {
     const c = ref.current; if (!c) return;
     const g = c.getContext('2d')!; const W = c.width, H = c.height;
     const xy = (p: LatLon) => [((p.lon + 180) / 360) * W, ((90 - p.lat) / 180) * H];
-    g.fillStyle = '#0c1424'; g.fillRect(0, 0, W, H);
-    if (img.current) { g.globalAlpha = 0.75; g.drawImage(img.current, 0, 0, W, H); g.globalAlpha = 1; }
+    g.fillStyle = '#C9D6E8'; g.fillRect(0, 0, W, H);
+    if (img.current) { g.globalAlpha = 1; g.drawImage(img.current, 0, 0, W, H); g.globalAlpha = 1; }
     if (scenario && design && state) {
-      g.fillStyle = 'rgba(89,212,248,0.55)';
+      g.fillStyle = 'rgba(255,214,0,0.9)';
       for (let t = 0; t <= state.deadlineMin; t += 1) {
         const [x, y] = xy(subSatellite(t, design.orbit.altitudeKm!, scenario.lon0, scenario.phaseMin));
         g.fillRect(x, y, t <= state.tMin ? 2 : 1, t <= state.tMin ? 2 : 1);
       }
       const [sx, sy] = xy(subSatellite(state.tMin, design.orbit.altitudeKm!, scenario.lon0, scenario.phaseMin));
-      g.fillStyle = '#fff'; g.beginPath(); g.arc(sx, sy, 6, 0, 7); g.fill();
+      g.fillStyle = '#fff'; g.strokeStyle = '#0C0078'; g.lineWidth = 3; g.beginPath(); g.arc(sx, sy, 8, 0, 7); g.fill(); g.stroke();
     }
     const mark = (p: LatLon | null, col: string, label: string) => {
       if (!p) return; const [x, y] = xy(p);
-      g.fillStyle = col; g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill();
-      g.fillStyle = '#E9EAEE'; g.font = '600 13px DM Sans, sans-serif'; g.fillText(label, x + 10, y + 4);
+      g.fillStyle = col; g.strokeStyle = '#fff'; g.lineWidth = 2; g.beginPath(); g.arc(x, y, 8, 0, 7); g.fill(); g.stroke();
+      g.font = '700 15px DM Sans, sans-serif'; g.lineWidth = 4; g.strokeStyle = 'rgba(16,26,45,.85)'; g.strokeText(label, x + 12, y + 5); g.fillStyle = '#fff'; g.fillText(label, x + 12, y + 5);
     };
-    mark(community, '#59D4F8', 'Community');
-    mark(relief, state?.reliefOfflineUntilMin != null ? '#EA373A' : '#E9EAEE', state?.reliefOfflineUntilMin != null ? 'Relief (flooded)' : 'Relief station');
+    mark(community, '#0C0078', 'Community');
+    mark(relief, state?.reliefOfflineUntilMin != null ? '#D62F32' : '#1E9E5A', state?.reliefOfflineUntilMin != null ? 'Relief (flooded)' : 'Relief station');
   });
   return (
     <canvas ref={ref} width={1024} height={512} className="map" style={{ cursor: onPick ? 'crosshair' : 'default' }}
