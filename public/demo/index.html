@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tether · Demo deck</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#101A2D;--deep:#0C0078;--cyan:#59D4F8;--red:#D62F32;--paper:#F6F7FA;--muted:#4A5568}
+*{box-sizing:border-box}body{margin:0;background:#e9eaee;font-family:'DM Sans',Arial,sans-serif;color:var(--ink)}
+.slide{max-width:1100px;aspect-ratio:16/9;margin:24px auto;background:var(--paper);border-radius:14px;padding:5% 6%;display:flex;gap:4%;align-items:center;position:relative;overflow:hidden;box-shadow:0 8px 30px rgba(16,26,45,.12)}
+.slide.dark{background:var(--deep);color:#fff}.slide.cyan{background:var(--cyan)}
+.col{flex:1;display:flex;flex-direction:column;gap:14px}
+h1,h2{font-family:'Space Grotesk',Arial,sans-serif;margin:0;line-height:1.05}h1{font-size:clamp(40px,8vw,96px)}h2{font-size:clamp(24px,4vw,48px)}
+p{margin:0;font-size:clamp(14px,1.8vw,22px);line-height:1.4}.eye{font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:clamp(11px,1.2vw,14px);color:var(--deep)}.dark .eye{color:var(--cyan)}
+img.photo{width:45%;height:100%;object-fit:cover;border-radius:10px}img.round{width:42%;aspect-ratio:1;object-fit:cover;border-radius:50%}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:#fff;border-top:5px solid var(--deep);border-radius:8px;padding:14px}.card.bad{border-top-color:var(--red)}.dark .card{background:rgba(255,255,255,.1)}
+.big{font-family:'Space Grotesk';font-size:clamp(28px,5vw,64px);font-weight:700;color:var(--deep)}.bad .big{color:var(--red)}
+.foot{position:absolute;left:6%;bottom:3%;font-size:12px;color:var(--muted)}.dark .foot{color:#c9cdf2}
+.n{position:absolute;right:3%;bottom:3%;font-size:12px;opacity:.6}
+a{color:inherit}
+@media(max-width:700px){.slide{flex-direction:column;aspect-ratio:auto;margin:12px}.cards{grid-template-columns:1fr}img.photo,img.round{width:100%;height:220px}}
+</style></head><body>
+<section class="slide"><div class="col"><img src="logo.png" alt="tether" style="width:46%"><p class="eye">NASA Space Apps 2026 · Space Mission Design Game</p><h2>The towers are down. One message still has to get out.</h2><p><a href="https://tether-ten-sigma.vercel.app/">Play: tether-ten-sigma.vercel.app</a></p></div><img class="round" src="globe.jpg" alt="Earth seen from Apollo 17"><span class="foot">Image: NASA, Apollo 17</span><span class="n">1/7</span></section>
+<section class="slide dark"><div class="col"><p class="eye">The problem</p><h2>When floods cut the ground, a satellite is the last way out.</h2><p>It’s overhead for minutes. Its battery is finite. The receiving station can flood too.</p></div><img class="photo" src="flood.jpg" alt="Flooding near Basrah photographed from the ISS"><span class="foot">Image: NASA, ISS Expedition 59</span><span class="n">2/7</span></section>
+<section class="slide"><div class="col"><p class="eye">How it’s taught today</p><h2>Subsystems in isolation. Missions fail where they meet.</h2><div class="cards"><div class="card bad"><b>Equations alone</b><p>No felt trade-off.</p></div><div class="card bad"><b>Physics-free games</b><p>Bigger always wins.</p></div><div class="card bad"><b>No consequence</b><p>A lost mark, not a lost message.</p></div></div></div><span class="n">3/7</span></section>
+<section class="slide dark"><img class="photo" src="cubesat.jpg" alt="CubeSats deployed from the ISS"><div class="col"><p class="eye">The solution</p><h2>Type the message. Build a $150k satellite. Fly it.</h2><p>Community → Satellite → Relief station. Real orbits, passes, link budget and power. Every failure explains why.</p></div><span class="foot">Image: NASA, ISS Expedition 47</span><span class="n">4/7</span></section>
+<section class="slide"><div class="col"><p class="eye">The lesson, in numbers</p><h2>The most expensive build loses.</h2><div class="cards"><div class="card bad"><div class="big">$160k</div><p>Max-spec build. Over budget.</p></div><div class="card bad"><div class="big">125 W</div><p>25 W radio’s real draw. Battery dies.</p></div><div class="card"><div class="big">$80k</div><p>2 W radio, used well. Delivered.</p></div></div></div><span class="foot">Game model · 25 automated tests · 8 cities · ranges from NASA’s Small Spacecraft Technology report</span><span class="n">5/7</span></section>
+<section class="slide cyan"><div class="col"><p class="eye">Impact · global relevance</p><h2>Any town from 55°S to 55°N. Your flood, your message.</h2><p>Free, in the browser, no account. Lagos and Houston fly the same physics over their own homes.</p></div><span class="n">6/7</span></section>
+<section class="slide dark"><div class="col"><p class="eye">Fit · why now</p><div class="cards"><div class="card"><b>The challenge</b><p>Design, operate, feel the trade-offs.</p></div><div class="card"><b>Why now</b><p>Small satellites are how everyone reaches orbit.</p></div><div class="card"><b>Next</b><p>Teacher mode, more scenarios.</p></div></div><h2>Get one message out.</h2></div><span class="foot">Play: tether-ten-sigma.vercel.app · github.com/agapemiteu/Tether · Images: NASA · Scenario fictional</span><span class="n">7/7</span></section>
+</body></html>

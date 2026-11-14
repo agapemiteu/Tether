@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import logoUrl from '../assets/logo.png';
 import { BUDGET_K, SIM_MIN_PER_REAL_SEC } from '../sim/constants';
 import { byId, CATALOG, SLOTS, totalCostK } from '../sim/catalog';
 import {
@@ -109,7 +110,7 @@ const CITIES = [
   { name: 'São Paulo', lat: -23.5, lon: -46.6 }, { name: 'London', lat: 51.5, lon: -0.1 },
 ];
 
-const Logo = () => <span className="logo">tether</span>;
+const Logo = () => <img className="logo" src={logoUrl} alt="tether" />;
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('briefing');
@@ -119,7 +120,8 @@ export default function App() {
   const [scenario, setScenario] = useState<Scenario | null>(null);
   const [state, setState] = useState<MissionState | null>(null);
   const [running, setRunning] = useState(true);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ ok: boolean; title: string; text: string } | null>(null);
+  const [message, setMessage] = useState('Flood has cut us off. 40 people, 3 injured. Need boats and medical supplies.');
   const [error, setError] = useState<string | null>(null);
   const [about, setAbout] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
@@ -151,7 +153,7 @@ export default function App() {
     }
   }, [state?.outcome, screen]);
 
-  useEffect(() => { if (toast) { const t = setTimeout(() => setToast(null), 4000); return () => clearTimeout(t); } }, [toast]);
+  useEffect(() => { if (toast) { const t = setTimeout(() => setToast(null), 3800); return () => clearTimeout(t); } }, [toast]);
 
   const launch = () => {
     if (!community) return;
@@ -161,7 +163,13 @@ export default function App() {
     setError(null); setDesign(d); setScenario(sc); setState(createMission(d, sc)); acc.current = 0; setRunning(false); setScreen('console');
   };
 
-  const doTransmit = () => { if (!state || !design) return; const r = transmit(state, design); setState(r.state); setToast(r.text); };
+  const doTransmit = () => {
+    if (!state || !design) return;
+    const r = transmit(state, design);
+    setState(r.state);
+    const title = !r.ok ? 'Transmission failed' : r.state.message === 'DELIVERED' ? 'Message delivered' : 'Uplink received: message on board';
+    setToast({ ok: r.ok, title, text: r.text });
+  };
 
   const finish = (to: Screen) => {
     if (state && design) setHistory((h) => [...h, `${design.transmitter.name} + ${design.battery.name} + ${design.orbit.name}: ${state.outcome === 'won' ? 'delivered' : `lost (${state.failure})`}`]);
@@ -186,7 +194,11 @@ export default function App() {
             <span className="tag">{SCENARIO_LABEL}</span>
             {community && !loc?.ok && <p className="err">{(loc as { reason: string }).reason}</p>}
             {community && loc?.ok && <p>Community at {community.lat.toFixed(1)}°, {community.lon.toFixed(1)}°. Relief station about 1,500 km east. The message hops twice: community → satellite → relief station.</p>}
-            <button disabled={!community || !loc?.ok} onClick={() => setScreen('workbench')}>Build your mission</button>
+            <label className="msg-label" htmlFor="msg">Their emergency message</label>
+            <textarea id="msg" className="msg-input" maxLength={160} rows={3} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Type the message the community needs to send" />
+            <small className="muted">{message.trim().length}/160 characters</small>
+            {!message.trim() && <p className="err">Type a message before you build. That's what you're delivering.</p>}
+            <button disabled={!community || !loc?.ok || !message.trim()} onClick={() => setScreen('workbench')}>Build your mission</button>
           </div>
         </main>
       )}
@@ -242,7 +254,22 @@ export default function App() {
               <button className="tx" onClick={doTransmit}>TRANSMIT</button>
               <button className="ghost" onClick={() => setState(setConserve(state, !state.conserve))}>{state.conserve ? 'Conserve: ON' : 'Conserve: off'}</button>
             </div>
-            {toast && <div className="toast">{toast}</div>}
+            {toast && (
+              <div className={`tx-overlay ${toast.ok ? 'ok' : 'fail'}`} role="alert" onClick={() => setToast(null)}>
+                <div className="tx-card">
+                  <div className="tx-icon">{toast.ok ? '✓' : '✗'}</div>
+                  <div className="beam"><span className="dot" /></div>
+                  <h3>{toast.title}</h3>
+                  {toast.ok && <blockquote>“{message}”</blockquote>}
+                  <p>{toast.text}</p>
+                </div>
+              </div>
+            )}
+            <div className={`msg-card ${state.message.toLowerCase()}`}>
+              <span className="msg-stage">{state.message === 'AT_COMMUNITY' ? '1/3 · Waiting at the community' : state.message === 'ON_SATELLITE' ? '2/3 · On board the satellite' : '3/3 · Delivered to the relief station'}</span>
+              <span className="msg-text">“{message}”</span>
+              <span className="msg-track"><i className="on" /><i className={state.message !== 'AT_COMMUNITY' ? 'on' : ''} /><i className={state.message === 'DELIVERED' ? 'on' : ''} /></span>
+            </div>
             </div><SatPanel parts={[design.transmitter, design.battery, design.orbit]} state={state} /></div>
             <ol className="log">{[...state.log].reverse().slice(0, 6).map((e, i) => <li key={i} className={e.kind}><b>{fmtClock(e.tMin)}</b> {e.text}</li>)}</ol>
           </main>
@@ -252,6 +279,7 @@ export default function App() {
       {screen === 'receipt' && state && design && (
         <main>
           <h1 className={state.outcome === 'won' ? 'ok' : 'err'}>{state.outcome === 'won' ? `Message delivered at ${fmtClock(state.tMin)}` : 'The message never made it'}</h1>
+          <blockquote className={`final-msg ${state.outcome}`}>“{message}”<small>{state.outcome === 'won' ? 'Received by the relief station' : state.message === 'ON_SATELLITE' ? 'Stuck on the satellite' : 'Never left the community'}</small></blockquote>
           <p className="lede">{takeaway(state, design)}</p>
           <ol className="log full">{state.log.map((e, i) => <li key={i} className={e.kind}><b>{fmtClock(e.tMin)}</b> {e.text}</li>)}</ol>
           {history.length > 0 && <div className="card"><b>Earlier runs</b><ul>{history.map((h, i) => <li key={i}>{h}</li>)}</ul></div>}

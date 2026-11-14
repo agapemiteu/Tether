@@ -77,3 +77,31 @@ button.ghost { background: var(--surface); color: var(--text); border: 1px solid
 .result { padding: 14px 16px; border-radius: 8px; margin-bottom: 10px; font-size: 20px; font-weight: 700; color: #fff; }
 .result.won { background: #1E9E5A; } .result.lost { background: var(--danger); }
 .toast { top: 16px; bottom: auto; }
+.logo { height: 30px; width: auto; display: block; }
+.msg-label { display: block; font-weight: 600; margin: 10px 0 4px; }
+.msg-input { width: 100%; font: inherit; padding: 10px 12px; border: 2px solid var(--line); border-radius: 8px; resize: vertical; background: #fff; color: var(--text); }
+.msg-input:focus { outline: none; border-color: var(--deep); box-shadow: 0 0 0 3px rgba(89,212,248,.4); }
+.msg-card { display: flex; flex-direction: column; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-left: 5px solid #E0A100; border-radius: 8px; padding: 10px 12px; margin: 10px 0; }
+.msg-card.on_satellite { border-left-color: var(--cyan); } .msg-card.delivered { border-left-color: #1E9E5A; }
+.msg-stage { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+.msg-text { font-size: 16px; font-style: italic; }
+.msg-track { display: flex; gap: 6px; } .msg-track i { flex: 1; height: 5px; border-radius: 3px; background: var(--line); } .msg-track i.on { background: var(--deep); }
+.tx-overlay { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(16,26,45,.35); z-index: 20; padding: 16px; animation: fade .2s ease-out; }
+.tx-card { background: #fff; border-radius: 14px; padding: 22px; max-width: 440px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(16,26,45,.3); animation: pop .35s cubic-bezier(.2,1.4,.4,1); border-top: 6px solid #1E9E5A; }
+.tx-overlay.fail .tx-card { border-top-color: var(--danger); animation: pop .35s cubic-bezier(.2,1.4,.4,1), shake .4s .35s; }
+.tx-icon { width: 64px; height: 64px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; font-size: 34px; color: #fff; background: #1E9E5A; }
+.fail .tx-icon { background: var(--danger); }
+.tx-card h3 { margin: 10px 0 6px; text-transform: none; } .tx-card p { margin: 6px 0 0; color: var(--muted); }
+.tx-card blockquote { margin: 8px 0; font-style: italic; background: #EEF9FE; border-radius: 8px; padding: 8px 10px; }
+.beam { position: relative; height: 4px; margin: 14px 10%; background: var(--line); border-radius: 2px; overflow: hidden; }
+.beam .dot { position: absolute; top: 0; left: 0; width: 30%; height: 100%; background: #1E9E5A; border-radius: 2px; animation: beam 1s ease-in-out 2; }
+.fail .beam .dot { background: var(--danger); animation: beamfail 1s ease-in-out 1 forwards; }
+.final-msg { margin: 8px 0 16px; padding: 14px 16px; border-radius: 10px; font-size: 18px; font-style: italic; background: #E9F7EF; border-left: 6px solid #1E9E5A; display: flex; flex-direction: column; gap: 6px; }
+.final-msg.lost { background: #FDECEC; border-left-color: var(--danger); }
+.final-msg small { font-style: normal; font-weight: 700; font-size: 13px; color: var(--muted); }
+@keyframes fade { from { opacity: 0; } }
+@keyframes pop { from { transform: scale(.85); opacity: 0; } }
+@keyframes shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+@keyframes beam { from { left: -30%; } to { left: 100%; } }
+@keyframes beamfail { from { left: -30%; } to { left: 45%; opacity: .3; } }
+@media (prefers-reduced-motion: reduce) { .tx-overlay, .tx-card, .beam .dot { animation: none !important; } }
