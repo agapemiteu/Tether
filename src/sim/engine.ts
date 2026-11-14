@@ -112,7 +112,7 @@ export const tick = (state: MissionState, design: MissionDesign, dt = 1): Missio
     const i = passIndex(s, p);
     if (p.endMin < s.tMin && p.endMin >= state.tMin && !s.closedPasses.includes(i)) {
       s = { ...s, closedPasses: [...s.closedPasses, i] };
-      if (!s.usedPasses.includes(i) && neededSite(s) === p.site) {
+      if (!s.usedPasses.includes(i) && neededSite(s) === p.site && !(p.site === 'relief' && s.reliefOfflineUntilMin !== null)) {
         s = log(s, 'pass_missed', `The ${SITE_NAME[p.site]} pass closed at ${fmtClock(p.endMin)} with no transmission. The message stayed ${s.message === 'AT_COMMUNITY' ? 'with the community' : 'on the satellite'}.`);
       }
     }
@@ -230,7 +230,7 @@ export const takeaway = (s: MissionState, d: MissionDesign): string => {
   }
   switch (s.failure) {
     case 'energy':
-      return `Your ${d.transmitter.name} transmitter used about ${perPass.toFixed(0)} Wh per pass, ${(perPass / Math.max(1, capacity(d))).toFixed(1)}x of the ${capacity(d)} Wh your battery holds, and the panels refill only ${(SOLAR_W - IDLE_LOAD_W)} W net in sunlight. More power was not more mission.`;
+      return `Your ${d.transmitter.name} radio burns about ${perPass.toFixed(0)} Wh every pass, plus ${d.transmitter.standbyW ?? 0} W just sitting idle. Your ${capacity(d)} Wh battery and small solar panels could not keep up. More power was not more mission.`;
     case 'link':
       return `A ${d.transmitter.name} radio from ${d.orbit.name} arrives ${Math.abs(linkMargin(d)).toFixed(1)} dB under what the ground can hear. Fly lower or transmit stronger.`;
     case 'disruption':
