@@ -6,7 +6,7 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-body); }
-.app { max-width: 1080px; margin: 0 auto; padding: 16px; }
+.app { max-width: 1320px; margin: 0 auto; padding: 16px; }
 header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .logo { font-family: var(--font-head); font-weight: 800; font-size: 28px; letter-spacing: -1px; }
 h1, h3 { font-family: var(--font-head); } h3 { text-transform: capitalize; margin: 16px 0 8px; }
@@ -39,3 +39,9 @@ button.ghost { background: var(--surface); color: var(--text); border: 1px solid
 .modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: grid; place-items: center; padding: 16px; }
 .modal .card { background: var(--surface); max-width: 560px; }
 .credits { color: var(--muted); font-size: 12px; margin-top: 24px; }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+.sat { position: sticky; top: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+.sat h3 { margin-top: 0; } .sat svg { width: 100%; height: auto; }
+.sat dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; font-size: 13px; margin: 8px 0 0; }
+.sat dt { font-weight: 600; } .sat dd { margin: 0; color: var(--muted); } .sat dd.ok { color: #1E7A47; } .sat dd.err { color: var(--danger); }
+@media (max-width: 860px) { .split { grid-template-columns: 1fr; } .sat { position: static; } }

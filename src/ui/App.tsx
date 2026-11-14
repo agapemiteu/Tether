@@ -4,9 +4,9 @@ import { byId, CATALOG, SLOTS, totalCostK } from '../sim/catalog';
 import {
   capacity, createMission, fmtClock, fmtMMSS, linkMargin, neededSite, nextPass, setConserve, takeaway, tick, transmit,
 } from '../sim/engine';
-import { subSatellite } from '../sim/orbit';
+import { periodMin, subSatellite } from '../sim/orbit';
 import { buildScenario, checkCommunity, reliefFor, SCENARIO_LABEL } from '../sim/scenario';
-import type { LatLon, MissionDesign, MissionState, Scenario, Screen, Slot } from '../sim/types';
+import type { ComponentOption, LatLon, MissionDesign, MissionState, Scenario, Screen, Slot } from '../sim/types';
 
 const BASEMAP = 'https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57752/land_shallow_topo_2048.jpg';
 
@@ -50,6 +50,46 @@ function MapCanvas({ community, relief, onPick, scenario, design, state }: {
         if (!onPick) return; const r = e.currentTarget.getBoundingClientRect();
         onPick({ lat: 90 - ((e.clientY - r.top) / r.height) * 180, lon: ((e.clientX - r.left) / r.width) * 360 - 180 });
       }} />
+  );
+}
+
+
+/** Live view of the spacecraft the player is building or flying. */
+function SatPanel({ parts, state }: { parts: ComponentOption[]; state?: MissionState }) {
+  const [tx, bat, orb] = parts;
+  const d = { community: { lat: 0, lon: 0 }, transmitter: tx, battery: bat, orbit: orb };
+  const m = linkMargin(d);
+  const pct = state ? state.batteryWh / (bat.capacityWh ?? 1) : 1;
+  const antenna = 18 + (tx.txPowerW ?? 2) * 2.2;
+  const cells = (bat.capacityWh ?? 40) / 40;
+  const ringR = 70 + ((orb.altitudeKm ?? 400) - 400) / 10;
+  return (
+    <aside className="sat">
+      <h3>Your satellite</h3>
+      <svg viewBox="0 0 260 220" role="img" aria-label={`Satellite with ${tx.name}, ${bat.name}, ${orb.name}`}>
+        <circle cx="130" cy="235" r={ringR + 80} fill="#C9E8F7" />
+        <circle cx="130" cy="235" r={ringR + 120} fill="none" stroke="#0C0078" strokeDasharray="4 6" />
+        <text x="130" y="18" textAnchor="middle" fontSize="11" fill="#4A5568">orbit {orb.altitudeKm} km</text>
+        <rect x="18" y="78" width="62" height="34" fill="#0C0078" rx="3" />
+        <rect x="180" y="78" width="62" height="34" fill="#0C0078" rx="3" />
+        <line x1="80" y1="95" x2="100" y2="95" stroke="#101A2D" strokeWidth="3" />
+        <line x1="160" y1="95" x2="180" y2="95" stroke="#101A2D" strokeWidth="3" />
+        <rect x="100" y="65" width="60" height="60" rx="6" fill="#fff" stroke="#101A2D" strokeWidth="3" />
+        {Array.from({ length: cells }).map((_, i) => (
+          <rect key={i} x={108 + i * 15} y="98" width="12" height="20" rx="2" fill={pct < 0.1 ? '#D62F32' : '#1E9E5A'} opacity={i < Math.ceil(pct * cells) ? 1 : 0.25} />
+        ))}
+        <line x1="130" y1="65" x2="130" y2={65 - antenna} stroke="#D62F32" strokeWidth="3" />
+        <circle cx="130" cy={65 - antenna} r="4" fill="#D62F32" />
+        <text x="30" y="128" fontSize="10" fill="#4A5568">solar 7 W</text>
+      </svg>
+      <dl>
+        <dt>Radio</dt><dd>{tx.name} · draws {tx.txDrawW} W transmitting, {tx.standbyW} W idle</dd>
+        <dt>Battery</dt><dd>{bat.name}{state ? ` · ${state.batteryWh.toFixed(1)} Wh now` : ''} · floor {((bat.capacityWh ?? 0) * 0.1).toFixed(0)} Wh</dd>
+        <dt>Orbit</dt><dd>{orb.name} · {periodMin(orb.altitudeKm ?? 400).toFixed(0)} min per lap</dd>
+        <dt>Signal</dt><dd className={m < 0 ? 'err' : 'ok'}>{m >= 0 ? '+' : ''}{m.toFixed(1)} dB {m < 0 ? '· too weak, will not reach the ground' : '· reaches the ground'}</dd>
+        <dt>Per pass</dt><dd>~{(((tx.txDrawW ?? 0) * 6) / 60).toFixed(1)} Wh for a 6-min transmission</dd>
+      </dl>
+    </aside>
   );
 }
 
@@ -134,6 +174,7 @@ export default function App() {
         <main>
           <h1>Workbench</h1>
           <p className="lede">Pick one per row. The most expensive part is not always the best choice.</p>
+          <div className="split"><div>
           {SLOTS.map((slot) => (
             <section key={slot}><h3>{slot}</h3><div className="row">
               {CATALOG.filter((c) => c.slot === slot).map((c) => (
@@ -143,6 +184,7 @@ export default function App() {
                   <em>{c.tradeoff}</em><small className="src">Source: {c.source}</small>
                 </button>))}
             </div></section>))}
+          </div><SatPanel parts={parts} /></div>
           <footer className="sticky">
             <div className="bar"><div style={{ width: `${Math.min(100, (cost / BUDGET_K) * 100)}%`, background: cost > BUDGET_K ? 'var(--danger)' : 'var(--accent)' }} /></div>
             <span>${cost}k of ${BUDGET_K}k {cost > BUDGET_K ? `Â· over budget by $${cost - BUDGET_K}k, drop something to launch` : `Â· $${BUDGET_K - cost}k left`}</span>
@@ -166,6 +208,7 @@ export default function App() {
               <button className="ghost" onClick={() => setRunning(!running)}>{running ? 'Pause' : 'Play'}</button>
             </div>
             {state.reliefOfflineUntilMin != null && <div className="banner">Relief station flooded. Back online at {fmtClock(state.reliefOfflineUntilMin)}.</div>}
+            <div className="split"><div>
             <MapCanvas community={scenario.community} relief={scenario.relief} scenario={scenario} design={design} state={state} />
             <div className="card ctl">
               {state.activePass
@@ -175,6 +218,7 @@ export default function App() {
               <button className="ghost" onClick={() => setState(setConserve(state, !state.conserve))}>{state.conserve ? 'Conserve: ON' : 'Conserve: off'}</button>
             </div>
             {toast && <div className="toast">{toast}</div>}
+            </div><SatPanel parts={[design.transmitter, design.battery, design.orbit]} state={state} /></div>
             <ol className="log">{[...state.log].reverse().slice(0, 6).map((e, i) => <li key={i} className={e.kind}><b>{fmtClock(e.tMin)}</b> {e.text}</li>)}</ol>
           </main>
         );
