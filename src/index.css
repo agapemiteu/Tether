@@ -62,3 +62,18 @@ button.ghost { background: var(--surface); color: var(--text); border: 1px solid
   .sticky { gap: 8px; } .sticky button { width: 100%; }
   .bar { width: 100px; }
 }
+.split.build { grid-template-columns: minmax(0, 1fr) 340px; }
+.steps { display: flex; gap: 6px; list-style: none; padding: 0; margin: 4px 0 8px; flex-wrap: wrap; font-size: 13px; }
+.steps li { padding: 4px 10px; border-radius: 99px; background: var(--line); color: var(--muted); }
+.steps li.on { background: var(--deep); color: #fff; font-weight: 600; }
+.cities button.picked { border-color: var(--deep); background: #EEF9FE; box-shadow: 0 0 0 2px var(--cyan); }
+@media (max-width: 760px) { .split.build { grid-template-columns: 1fr; } }
+.split.fly { grid-template-columns: minmax(0, 1fr) 320px; }
+@media (max-width: 760px) { .split.fly { grid-template-columns: 1fr; } .split.fly .sat { order: 1; } }
+.status { background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--deep); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; font-size: 15px; }
+.status b { color: var(--deep); margin-right: 6px; }
+.status.uplink_fail, .status.downlink_fail, .status.battery_empty, .status.pass_missed, .status.disruption { border-left-color: var(--danger); color: var(--danger); }
+.status.uplink_ok, .status.downlink_ok { border-left-color: #1E9E5A; color: #1E7A47; }
+.result { padding: 14px 16px; border-radius: 8px; margin-bottom: 10px; font-size: 20px; font-weight: 700; color: #fff; }
+.result.won { background: #1E9E5A; } .result.lost { background: var(--danger); }
+.toast { top: 16px; bottom: auto; }

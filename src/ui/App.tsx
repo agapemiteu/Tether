@@ -26,23 +26,33 @@ function MapCanvas({ community, relief, onPick, scenario, design, state }: {
     const g = c.getContext('2d')!; const W = c.width, H = c.height;
     const xy = (p: LatLon) => [((p.lon + 180) / 360) * W, ((90 - p.lat) / 180) * H];
     g.fillStyle = '#C9D6E8'; g.fillRect(0, 0, W, H);
-    if (img.current) { g.globalAlpha = 1; g.drawImage(img.current, 0, 0, W, H); g.globalAlpha = 1; }
+    if (img.current) g.drawImage(img.current, 0, 0, W, H);
+    else {
+      // Fallback when the NASA basemap can't load: a labelled lat/lon grid keeps the map readable.
+      g.strokeStyle = 'rgba(12,0,120,.15)'; g.lineWidth = 1;
+      for (let lon = -180; lon <= 180; lon += 30) { const [x] = xy({ lat: 0, lon }); g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
+      for (let lat = -60; lat <= 60; lat += 30) { const [, y] = xy({ lat, lon: 0 }); g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
+      g.fillStyle = 'rgba(12,0,120,.45)'; g.font = '12px DM Sans, sans-serif'; g.fillText('Equator', 6, H / 2 - 4);
+    }
     if (scenario && design && state) {
-      g.fillStyle = 'rgba(255,214,0,0.9)';
       for (let t = 0; t <= state.deadlineMin; t += 1) {
         const [x, y] = xy(subSatellite(t, design.orbit.altitudeKm!, scenario.lon0, scenario.phaseMin));
-        g.fillRect(x, y, t <= state.tMin ? 2 : 1, t <= state.tMin ? 2 : 1);
+        const past = t <= state.tMin;
+        g.fillStyle = past ? '#0C0078' : 'rgba(12,0,120,0.3)';
+        g.fillRect(x - 1, y - 1, past ? 3 : 2, past ? 3 : 2);
       }
       const [sx, sy] = xy(subSatellite(state.tMin, design.orbit.altitudeKm!, scenario.lon0, scenario.phaseMin));
       g.fillStyle = '#fff'; g.strokeStyle = '#0C0078'; g.lineWidth = 3; g.beginPath(); g.arc(sx, sy, 8, 0, 7); g.fill(); g.stroke();
     }
-    const mark = (p: LatLon | null, col: string, label: string) => {
+    const mark = (p: LatLon | null, col: string, label: string, dy: number) => {
       if (!p) return; const [x, y] = xy(p);
       g.fillStyle = col; g.strokeStyle = '#fff'; g.lineWidth = 2; g.beginPath(); g.arc(x, y, 8, 0, 7); g.fill(); g.stroke();
-      g.font = '700 15px DM Sans, sans-serif'; g.lineWidth = 4; g.strokeStyle = 'rgba(16,26,45,.85)'; g.strokeText(label, x + 12, y + 5); g.fillStyle = '#fff'; g.fillText(label, x + 12, y + 5);
+      g.font = '700 15px DM Sans, sans-serif'; g.textAlign = 'center'; g.lineWidth = 4; g.strokeStyle = 'rgba(16,26,45,.85)';
+      g.strokeText(label, x, y + dy); g.fillStyle = '#fff'; g.fillText(label, x, y + dy); g.textAlign = 'left';
     };
-    mark(community, '#0C0078', 'Community');
-    mark(relief, state?.reliefOfflineUntilMin != null ? '#D62F32' : '#1E9E5A', state?.reliefOfflineUntilMin != null ? 'Relief (flooded)' : 'Relief station');
+    // Labels go above / below so the two nearby sites never overlap.
+    mark(community, '#0C0078', 'Community', -14);
+    mark(relief, state?.reliefOfflineUntilMin != null ? '#D62F32' : '#1E9E5A', state?.reliefOfflineUntilMin != null ? 'Relief (flooded)' : 'Relief station', 26);
   });
   return (
     <canvas ref={ref} width={1024} height={512} className="map" style={{ cursor: onPick ? 'crosshair' : 'default' }}
@@ -83,15 +93,21 @@ function SatPanel({ parts, state }: { parts: ComponentOption[]; state?: MissionS
         <text x="30" y="128" fontSize="10" fill="#4A5568">solar 7 W</text>
       </svg>
       <dl>
-        <dt>Radio</dt><dd>{tx.name} � draws {tx.txDrawW} W transmitting, {tx.standbyW} W idle</dd>
-        <dt>Battery</dt><dd>{bat.name}{state ? ` � ${state.batteryWh.toFixed(1)} Wh now` : ''} � floor {((bat.capacityWh ?? 0) * 0.1).toFixed(0)} Wh</dd>
-        <dt>Orbit</dt><dd>{orb.name} � {periodMin(orb.altitudeKm ?? 400).toFixed(0)} min per lap</dd>
-        <dt>Signal</dt><dd className={m < 0 ? 'err' : 'ok'}>{m >= 0 ? '+' : ''}{m.toFixed(1)} dB {m < 0 ? '� too weak, will not reach the ground' : '� reaches the ground'}</dd>
+        <dt>Radio</dt><dd>{tx.name} · draws {tx.txDrawW} W transmitting, {tx.standbyW} W idle</dd>
+        <dt>Battery</dt><dd>{bat.name}{state ? ` · ${state.batteryWh.toFixed(1)} Wh now` : ''} · floor {((bat.capacityWh ?? 0) * 0.1).toFixed(0)} Wh</dd>
+        <dt>Orbit</dt><dd>{orb.name} · {periodMin(orb.altitudeKm ?? 400).toFixed(0)} min per lap</dd>
+        <dt>Signal</dt><dd className={m < 0 ? 'err' : 'ok'}>{m >= 0 ? '+' : ''}{m.toFixed(1)} dB {m < 0 ? '· too weak, will not reach the ground' : '· reaches the ground'}</dd>
         <dt>Per pass</dt><dd>~{(((tx.txDrawW ?? 0) * 6) / 60).toFixed(1)} Wh for a 6-min transmission</dd>
       </dl>
     </aside>
   );
 }
+
+const CITIES = [
+  { name: 'Lagos', lat: 6.5, lon: 3.4 }, { name: 'Houston', lat: 29.8, lon: -95.4 },
+  { name: 'Dhaka', lat: 23.8, lon: 90.4 }, { name: 'Manila', lat: 14.6, lon: 121 },
+  { name: 'São Paulo', lat: -23.5, lon: -46.6 }, { name: 'London', lat: 51.5, lon: -0.1 },
+];
 
 const Logo = () => <span className="logo">tether</span>;
 
@@ -131,7 +147,7 @@ export default function App() {
 
   useEffect(() => {
     if (state && state.outcome !== 'running' && screen === 'console') {
-      const t = setTimeout(() => setScreen('receipt'), 2000); return () => clearTimeout(t);
+      const t = setTimeout(() => setScreen("receipt"), 3500); return () => clearTimeout(t);
     }
   }, [state?.outcome, screen]);
 
@@ -142,7 +158,7 @@ export default function App() {
     const d: MissionDesign = { community, transmitter: parts[0], battery: parts[1], orbit: parts[2] };
     const sc = buildScenario(community, d.orbit.altitudeKm!);
     if (!sc) { setError('No playable pass schedule exists for this location with this orbit. Try another orbit or location.'); return; }
-    setError(null); setDesign(d); setScenario(sc); setState(createMission(d, sc)); acc.current = 0; setRunning(true); setScreen('console');
+    setError(null); setDesign(d); setScenario(sc); setState(createMission(d, sc)); acc.current = 0; setRunning(false); setScreen('console');
   };
 
   const doTransmit = () => { if (!state || !design) return; const r = transmit(state, design); setState(r.state); setToast(r.text); };
@@ -158,8 +174,13 @@ export default function App() {
 
       {screen === 'briefing' && (
         <main>
+          <ol className="steps"><li className="on">1 · Choose a place</li><li>2 · Build</li><li>3 · Fly</li><li>4 · Debrief</li></ol>
           <h1>Get one message out.</h1>
-          <p className="lede">A flood has cut a community off. Design a small satellite, then fly it to carry their emergency message to a relief station before the deadline. <b>Click the map to choose the community.</b></p>
+          <p className="lede">A flood has cut a community off. You’ll build a small satellite and fly it to carry their emergency message to a relief station before the deadline.</p>
+          <p><b>Step 1: pick a city, or tap anywhere on the map.</b></p>
+          <div className="row cities">{CITIES.map((c) => (
+            <button key={c.name} className={`ghost ${community?.lat === c.lat && community?.lon === c.lon ? 'picked' : ''}`} onClick={() => setCommunity({ lat: c.lat, lon: c.lon })}>{c.name}</button>
+          ))}</div>
           <MapCanvas community={community} relief={community && loc?.ok ? reliefFor(community) : null} onPick={setCommunity} />
           <div className="card">
             <span className="tag">{SCENARIO_LABEL}</span>
@@ -172,19 +193,21 @@ export default function App() {
 
       {screen === 'workbench' && (
         <main>
-          <h1>Workbench</h1>
-          <p className="lede">Pick one per row. The most expensive part is not always the best choice.</p>
-          <div className="split"><div>
+          <ol className="steps"><li>1 · Place ✓</li><li className="on">2 · Build</li><li>3 · Fly</li><li>4 · Debrief</li></ol>
+          <h1>Build your satellite</h1>
+          <p className="lede">Choose one part per group on the right. Your satellite updates as you pick. The priciest parts are not always the best mission.</p>
+          <div className="split build"><SatPanel parts={parts} /><div className="materials">
           {SLOTS.map((slot) => (
             <section key={slot}><h3>{slot}</h3><div className="row">
               {CATALOG.filter((c) => c.slot === slot).map((c) => (
                 <button key={c.id} className={`opt ${pick[slot] === c.id ? 'sel' : ''}`} onClick={() => setPick({ ...pick, [slot]: c.id })}>
                   <b>{c.name}</b><span className="cost">${c.costK}k</span>
                   <small>{c.txPowerW ? `${c.txPowerW} W RF · ${c.txDrawW} W draw` : c.capacityWh ? `${c.capacityWh} Wh` : `${c.altitudeKm} km altitude`}</small>
-                  <em>{c.tradeoff}</em><small className="src">Source: {c.source}</small>
+                  <em>{c.tradeoff}</em>
                 </button>))}
             </div></section>))}
-          </div><SatPanel parts={parts} /></div>
+          <p className="src">Ranges: {CATALOG[0].source}</p>
+          </div></div>
           <footer className="sticky">
             <div className="bar"><div style={{ width: `${Math.min(100, (cost / BUDGET_K) * 100)}%`, background: cost > BUDGET_K ? 'var(--danger)' : 'var(--accent)' }} /></div>
             <span>${cost}k of ${BUDGET_K}k {cost > BUDGET_K ? `· over budget by $${cost - BUDGET_K}k, drop something to launch` : `· $${BUDGET_K - cost}k left`}</span>
@@ -205,10 +228,12 @@ export default function App() {
               <span>Deadline in {fmtClock(state.deadlineMin - state.tMin).slice(2)}</span>
               <span className="batt"><span className="bar"><div style={{ width: `${pct}%`, background: pct < 10 ? 'var(--danger)' : 'var(--accent)' }} /></span>{pct.toFixed(0)}%</span>
               <span className="chip">{state.message.replace('_', ' ')}</span>
-              <button className="ghost" onClick={() => setRunning(!running)}>{running ? 'Pause' : 'Play'}</button>
+              <button className="ghost" onClick={() => setRunning(!running)}>{running ? 'Pause' : (state.tMin === 0 ? '▶ Start mission' : 'Play')}</button>
             </div>
+            {state.outcome !== 'running' && <div className={`result ${state.outcome}`}>{state.outcome === 'won' ? `✓ Message delivered at ${fmtClock(state.tMin)}. Opening your debrief…` : '✗ The message never made it. Opening your debrief…'}</div>}
+            <div className={`status ${state.log[state.log.length - 1].kind}`}><b>{fmtClock(state.log[state.log.length - 1].tMin)}</b> {state.log[state.log.length - 1].text}</div>
             {state.reliefOfflineUntilMin != null && <div className="banner">Relief station flooded. Back online at {fmtClock(state.reliefOfflineUntilMin)}.</div>}
-            <div className="split"><div>
+            <div className="split fly"><div>
             <MapCanvas community={scenario.community} relief={scenario.relief} scenario={scenario} design={design} state={state} />
             <div className="card ctl">
               {state.activePass
