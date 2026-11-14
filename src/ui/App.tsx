@@ -410,7 +410,7 @@ export default function App() {
 
             <div className="map-wrap">
               <MapCanvas community={scenario.community} relief={scenario.relief} scenario={scenario} design={design} state={state} beam={beam} />
-              {!running && state.tMin === 0 && (
+              {!running && state.tMin === 0 && state.message === 'AT_COMMUNITY' && !flash && (
                 <button className="start-overlay" onClick={() => setRunning(true)}>▶ Start mission</button>
               )}
               {state.outcome !== 'running' && (
