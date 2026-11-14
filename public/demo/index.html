@@ -3,56 +3,59 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tether · Demo deck</title>
+<title>Tether · Get the message home</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,600;0,700;1,400&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
 <style>
-  /* Palette from the designer's Canva kit */
+  /* Palette, logo and icons from the designer's Canva kit */
   :root { --ink:#101A2D; --deep:#0C0078; --cyan:#59D4F8; --red:#EA373A; --mist:#E9EAEE; --paper:#F7F8FB; --muted:#5B6478; }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--mist); font-family:'DM Sans',Arial,sans-serif; color:var(--ink); }
   .slide { position:relative; max-width:1120px; aspect-ratio:16/9; margin:28px auto; border-radius:18px; overflow:hidden;
            box-shadow:0 14px 40px rgba(16,26,45,.14); display:flex; background:var(--paper); }
   .pad { padding:5% 6%; display:flex; flex-direction:column; justify-content:center; gap:14px; width:100%; position:relative; z-index:2; }
-  h1, h2, h3 { font-family:'Space Grotesk',Arial,sans-serif; margin:0; line-height:1.04; letter-spacing:-.5px; }
+  h1, h2, h3 { font-family:'Space Grotesk',Arial,sans-serif; margin:0; line-height:1.05; letter-spacing:-.5px; }
   h1 { font-size:clamp(28px,4.4vw,56px); }
-  h2 { font-size:clamp(22px,3.2vw,40px); }
-  h3 { font-size:clamp(17px,2vw,24px); }
-  p { margin:0; font-size:clamp(13px,1.45vw,18px); line-height:1.45; }
-  .eye { font-size:clamp(11px,1.1vw,13px); font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:var(--deep); }
+  h2 { font-size:clamp(21px,3vw,38px); }
+  h3 { font-size:clamp(15px,1.7vw,20px); }
+  p { margin:0; font-size:clamp(13px,1.4vw,17px); line-height:1.45; }
+  .eye { font-size:clamp(10px,1.05vw,13px); font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:var(--deep); }
   .on-dark { color:#fff; } .on-dark .eye { color:var(--cyan); } .on-dark p { color:#D9DEF2; }
   .hl { color:var(--red); } .on-dark .hl { color:var(--cyan); }
   .n { position:absolute; right:3.2%; bottom:3.5%; font-size:12px; opacity:.55; z-index:3; }
-  .credit { position:absolute; left:3.2%; bottom:3.5%; font-size:11px; opacity:.65; z-index:3; }
+  .credit { position:absolute; left:3.2%; bottom:3.5%; font-size:11px; opacity:.7; z-index:3; max-width:80%; }
   .on-dark .credit, .on-dark .n { color:#fff; }
-  /* Designer icons, recoloured with a mask */
-  .ic { display:inline-block; width:46px; height:46px; background:var(--cyan); -webkit-mask:var(--src) center/contain no-repeat; mask:var(--src) center/contain no-repeat; flex:none; }
+  .ic { display:inline-block; width:40px; height:40px; background:var(--cyan); -webkit-mask:var(--src) center/contain no-repeat; mask:var(--src) center/contain no-repeat; flex:none; }
   .ic.tower { --src:url(icons/tower.png); } .ic.dish { --src:url(icons/dish.png); } .ic.battery { --src:url(icons/battery.png); }
   .ic.check { --src:url(icons/check.png); } .ic.envelope { --src:url(icons/envelope.png); }
-  .ic.red { background:var(--red); } .ic.deep { background:var(--deep); } .ic.white { background:#fff; }
+  .ic.red { background:var(--red); } .ic.deep { background:var(--deep); } .ic.white { background:#fff; } .ic.sm { width:26px; height:26px; }
   .bleed { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-  .shade { position:absolute; inset:0; background:linear-gradient(90deg, rgba(16,26,45,.94) 0%, rgba(16,26,45,.78) 45%, rgba(16,26,45,.15) 100%); }
-  .shade.deep { background:linear-gradient(270deg, rgba(12,0,120,.95) 0%, rgba(12,0,120,.82) 50%, rgba(12,0,120,.2) 100%); }
-  .narrow { max-width:56%; } .right { margin-left:auto; }
-  .row { display:flex; gap:18px; align-items:stretch; }
-  .tile { flex:1; background:#fff; border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:10px; box-shadow:0 4px 16px rgba(16,26,45,.06); }
-  .tile p { font-size:clamp(13px,1.45vw,17px); color:var(--muted); }
-  .quote { font-style:italic; font-size:clamp(15px,1.7vw,21px); line-height:1.35; border-left:5px solid var(--red); padding-left:18px; }
+  .shade { position:absolute; inset:0; background:linear-gradient(90deg, rgba(16,26,45,.95) 0%, rgba(16,26,45,.82) 50%, rgba(16,26,45,.2) 100%); }
+  .shade.deep { background:linear-gradient(270deg, rgba(12,0,120,.96) 0%, rgba(12,0,120,.85) 52%, rgba(12,0,120,.2) 100%); }
+  .narrow { max-width:58%; } .right { margin-left:auto; }
+  .row { display:flex; gap:14px; align-items:stretch; }
+  .grid4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .tile { flex:1; background:#fff; border-radius:14px; padding:16px; display:flex; flex-direction:column; gap:8px; box-shadow:0 4px 16px rgba(16,26,45,.06); }
+  .tile p { font-size:clamp(12px,1.25vw,15px); color:var(--muted); }
+  .tile .lesson { color:var(--deep); font-weight:700; }
+  .tile.dark { background:rgba(255,255,255,.1); box-shadow:none; } .tile.dark h3 { color:#fff; } .tile.dark p { color:#D9DEF2; }
+  .quote { font-style:italic; font-size:clamp(14px,1.6vw,20px); line-height:1.35; border-left:5px solid var(--red); padding-left:16px; color:#fff; }
   .flow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-  .step { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); border-radius:999px; padding:7px 14px 7px 9px; color:#fff; font-weight:600; font-size:clamp(12px,1.25vw,15px); white-space:nowrap; }
-  .step .ic { width:22px; height:22px; }
+  .step { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); border-radius:999px; padding:7px 14px 7px 9px; color:#fff; font-weight:600; font-size:clamp(12px,1.25vw,15px); white-space:nowrap; }
   .arrow { color:var(--cyan); font-size:18px; font-weight:700; }
-  .big { font-family:'Space Grotesk'; font-weight:700; font-size:clamp(34px,5.6vw,68px); line-height:1; }
-  .stat.bad .big { color:var(--red); } .stat.good .big { color:var(--deep); }
-  .globe { position:absolute; right:-4%; top:50%; transform:translateY(-50%); width:52%; clip-path:circle(46%); aspect-ratio:1; border-radius:50%; object-fit:cover; box-shadow:0 0 0 14px rgba(89,212,248,.18), 0 0 80px rgba(89,212,248,.35); }
-  .orbit { position:absolute; right:-14%; top:50%; transform:translateY(-50%); width:74%; aspect-ratio:1; border-radius:50%; border:2px dashed rgba(89,212,248,.5); }
-  .logo { width:clamp(140px,22vw,250px); }
-  .pill { display:inline-flex; align-items:center; gap:8px; background:var(--cyan); color:var(--ink); font-weight:700; border-radius:999px; padding:10px 18px; font-size:clamp(13px,1.5vw,18px); text-decoration:none; width:max-content; }
+  .big { font-family:'Space Grotesk'; font-weight:700; font-size:clamp(26px,4vw,50px); line-height:1; color:var(--deep); }
+  .on-dark .big { color:var(--cyan); }
+  .src { font-size:11px; opacity:.75; }
+  .globe { position:absolute; right:-4%; top:50%; transform:translateY(-50%); width:52%; aspect-ratio:1; border-radius:50%; object-fit:cover; clip-path:circle(46%); }
+  .orbit { position:absolute; right:-12%; top:50%; transform:translateY(-50%); width:70%; aspect-ratio:1; border-radius:50%; border:2px dashed rgba(89,212,248,.5); }
+  .logo { width:clamp(130px,20vw,230px); }
+  .pill { display:inline-flex; align-items:center; gap:8px; background:var(--cyan); color:var(--ink); font-weight:700; border-radius:999px; padding:10px 18px; font-size:clamp(13px,1.4vw,17px); text-decoration:none; width:max-content; }
+  .tag { display:inline-block; background:var(--red); color:#fff; font-weight:700; font-size:12px; border-radius:999px; padding:3px 10px; width:max-content; }
+  .tag.ok { background:var(--deep); }
   @media (max-width:720px) {
     .slide { aspect-ratio:auto; min-height:78vh; margin:12px; }
-    .narrow { max-width:100%; } .row { flex-direction:column; }
+    .narrow { max-width:100%; } .row { flex-direction:column; } .grid4 { grid-template-columns:1fr 1fr; }
     .globe { position:relative; right:auto; top:auto; transform:none; width:70%; margin:0 auto 18px; display:block; }
-    .orbit { display:none; }
-    .shade, .shade.deep { background:rgba(16,26,45,.82); }
+    .orbit { display:none; } .shade, .shade.deep { background:rgba(16,26,45,.85); }
   }
 </style>
 </head>
@@ -65,96 +68,106 @@
   <div class="pad narrow">
     <img class="logo" src="logo-white.png" alt="tether">
     <p class="eye">NASA Space Apps 2026 · Space Mission Design Game</p>
-    <h1>The towers are down.<br><span class="hl">One message</span> still has to get out.</h1>
+    <h1>Get the message <span class="hl">home</span>.</h1>
+    <p>A browser game where you build the space mission that reconnects your own hometown after a disaster.</p>
   </div>
   <span class="credit">Image: NASA, Apollo 17</span><span class="n">1 / 7</span>
 </section>
 
-<!-- 2 · The pain -->
+<!-- 2 · One pain -->
 <section class="slide on-dark">
   <img class="bleed" src="flood.jpg" alt="Floodwater seen from the International Space Station">
   <div class="shade"></div>
   <div class="pad narrow">
-    <span class="ic tower red" style="width:54px;height:54px"></span>
     <p class="eye">The pain</p>
-    <h2>The water rises. The power fails. The phone shows <span class="hl">no signal</span>.</h2>
-    <p class="quote" style="color:#fff">“We are cut off. Forty people, three injured. Please send help.”</p>
-    <p>Somewhere, someone types that message, and it goes nowhere. When the ground network dies, the only way out is through orbit.</p>
+    <h2>A flood takes the towers. The network goes dark. <span class="hl">The call for help goes nowhere.</span></h2>
+    <p class="quote">“We are cut off. Forty people, three injured. Please send help.”</p>
+    <div class="row">
+      <div class="tile dark"><div class="big">1.8 billion</div><p>people live directly exposed to severe (1-in-100-year) floods.</p><span class="src">World Bank · Rentschler et al., Nature Communications, 2022</span></div>
+      <div class="tile dark"><div class="big">2.6 billion</div><p>people were already offline before any disaster struck.</p><span class="src">ITU, Facts and Figures 2023</span></div>
+    </div>
   </div>
   <span class="credit">Image: NASA, ISS Expedition 59 · flooding near Basrah</span><span class="n">2 / 7</span>
 </section>
 
-<!-- 3 · The hidden truth -->
+<!-- 3 · What you do + constraints -->
 <section class="slide">
   <div class="pad">
-    <p class="eye">The hidden truth</p>
-    <h2>A satellite isn’t magic. It’s a chain of decisions, and <span class="hl">one weak link</span> loses the message.</h2>
-    <div class="row">
-      <div class="tile"><span class="ic dish deep"></span><h3>It’s only overhead for minutes</h3><p>Miss the pass and you wait another orbit.</p></div>
-      <div class="tile"><span class="ic battery deep"></span><h3>Power runs out</h3><p>A stronger radio drains the battery before the pass that matters.</p></div>
-      <div class="tile"><span class="ic tower red"></span><h3>The ground floods too</h3><p>The receiving station can go dark right when you need it.</p></div>
+    <p class="eye">What you actually do</p>
+    <h2>Pick your town. Design the satellite. Launch it. <span class="hl">Fly it live</span> against the clock.</h2>
+    <div class="grid4">
+      <div class="tile"><span class="ic battery deep"></span><h3>$150k budget</h3><p>Radio, battery and orbit. The max-spec build costs $160k and can’t launch.</p></div>
+      <div class="tile"><span class="ic dish deep"></span><h3>Minutes overhead</h3><p>You can only talk during a pass. Miss it and you wait an orbit.</p></div>
+      <div class="tile"><span class="ic battery red"></span><h3>Power through night</h3><p>Panels charge only in sunlight. Every transmission spends energy.</p></div>
+      <div class="tile"><span class="ic tower red"></span><h3>The ground fails</h3><p>The relief station floods mid-mission. You have to plan around it.</p></div>
     </div>
-    <p style="color:var(--muted)">Most people, and many students, never get to feel these trade-offs. They read equations in isolation, or play games where the biggest rocket always wins.</p>
+    <p style="color:var(--muted)">Real physics, simplified: orbital period, ground-track passes, free-space path loss at 437 MHz, a 10° elevation mask and an energy budget.</p>
   </div>
   <span class="n">3 / 7</span>
 </section>
 
-<!-- 4 · The solution -->
+<!-- 4 · The tether -->
 <section class="slide on-dark">
   <img class="bleed" src="cubesat.jpg" alt="Small satellites released from the International Space Station">
   <div class="shade deep"></div>
   <div class="pad narrow right">
-    <p class="eye">Tether</p>
-    <h2>Type their message. Build the satellite. <span class="hl">Get it through.</span></h2>
+    <p class="eye">The tether</p>
+    <h2>The satellite is the <span class="hl">one thread</span> still connecting a cut-off town to the world. You build it.</h2>
     <div class="flow">
-      <span class="step"><span class="ic envelope white"></span>Community</span><span class="arrow">→</span>
-      <span class="step"><span class="ic dish white"></span>Satellite</span><span class="arrow">→</span>
-      <span class="step"><span class="ic check white"></span>Relief station</span>
+      <span class="step"><span class="ic envelope white sm"></span>Your community</span><span class="arrow">→</span>
+      <span class="step"><span class="ic dish white sm"></span>Your satellite</span><span class="arrow">→</span>
+      <span class="step"><span class="ic check white sm"></span>Relief station</span>
     </div>
-    <p>Pick any town. Choose a radio, battery and orbit on a $150k budget. Fly it in real time. Each transmission shows clearly: <b style="color:#fff">sent</b> or <b style="color:#fff">failed, and why</b>.</p>
+    <p>Type the emergency message. Watch it hop, one pass at a time. Every transmission shows clearly: <b style="color:#fff">sent</b>, or <b style="color:#fff">failed and why</b>. The debrief names the exact decision that killed it, and you redesign.</p>
   </div>
   <span class="credit">Image: NASA, CubeSats deployed from the ISS (Expedition 47)</span><span class="n">4 / 7</span>
 </section>
 
-<!-- 5 · The lesson in numbers -->
+<!-- 5 · Failures & lessons -->
 <section class="slide">
   <div class="pad">
-    <p class="eye">The lesson, in numbers</p>
-    <h2>Money doesn’t deliver the message. <span class="hl">Balance does.</span></h2>
-    <div class="row">
-      <div class="tile stat bad"><span class="ic battery red"></span><div class="big">$160k</div><p>The max-spec build. Over budget. It can’t even launch.</p></div>
-      <div class="tile stat bad"><span class="ic tower red"></span><div class="big">125 W</div><p>What the 25 W radio really draws. A small battery dies before the pass that matters.</p></div>
-      <div class="tile stat good"><span class="ic check deep"></span><div class="big">$80k</div><p>A 2 W radio, used with discipline. Message delivered.</p></div>
+    <p class="eye">How students fail, and what it teaches</p>
+    <h2>A good component is not a <span class="hl">good mission</span>.</h2>
+    <div class="grid4">
+      <div class="tile"><span class="tag">Fail</span><h3>Biggest radio</h3><p>The 25 W radio draws 125 W and drains the battery before the pass that matters.</p><p class="lesson">Power is a budget.</p></div>
+      <div class="tile"><span class="tag">Fail</span><h3>Too high, too weak</h3><p>A 2 W radio from 800 km arrives too faint for the ground to hear.</p><p class="lesson">Distance costs signal.</p></div>
+      <div class="tile"><span class="tag">Fail</span><h3>Wrong moment</h3><p>Transmitting with no satellite overhead, or missing the pass, sends nothing.</p><p class="lesson">Timing is engineering.</p></div>
+      <div class="tile"><span class="tag ok">Win</span><h3>Matched and patient</h3><p>An $80k build: 2 W radio, 400 km orbit, transmitting only when it counts. Delivered.</p><p class="lesson">Systems beat parts.</p></div>
     </div>
-    <p style="color:var(--muted);font-size:13px">Real orbital period, ground-track passes, free-space path loss and an energy budget · 25 automated tests across 8 cities · component ranges informed by NASA’s Small Spacecraft Technology report</p>
   </div>
   <span class="n">5 / 7</span>
 </section>
 
-<!-- 6 · Impact -->
+<!-- 6 · Impact & practicality -->
 <section class="slide" style="background:var(--cyan)">
   <div class="pad">
-    <span class="ic envelope deep" style="width:58px;height:58px"></span>
-    <p class="eye">Impact · global relevance</p>
-    <h1 style="color:var(--ink)">Your town. Your flood.<br>Your message.</h1>
-    <p style="max-width:70%">Any place from 55°S to 55°N. Free, in the browser, no account. A classroom in Lagos and a classroom in Houston fly the same physics over their own homes, and leave knowing engineering is about trade-offs, not budgets.</p>
+    <p class="eye">Impact · practical by design</p>
+    <h1 style="color:var(--ink)">Your town. Your disaster. Your message.</h1>
+    <div class="grid4">
+      <div class="tile"><div class="big">$0</div><p>Free. Runs in any browser, on a phone or a school laptop. No install, no account.</p></div>
+      <div class="tile"><div class="big">55°S–55°N</div><p>Any community in that band can be your mission, from Lagos to Houston to Dhaka.</p></div>
+      <div class="tile"><div class="big">1 lesson</div><p>A mission fits a single class period, with time left to redesign and retry.</p></div>
+      <div class="tile"><div class="big">25</div><p>Automated tests across 8 cities keep the physics and the lesson honest.</p></div>
+    </div>
+    <p>Built for students and first-time mission designers who will never touch a real satellite, so they leave knowing engineering is trade-offs, not budgets.</p>
   </div>
   <span class="n">6 / 7</span>
 </section>
 
-<!-- 7 · Fit & close -->
+<!-- 7 · Close -->
 <section class="slide on-dark" style="background:var(--deep)">
   <div class="pad">
     <p class="eye">Fit · why now</p>
     <div class="row">
-      <div class="tile" style="background:rgba(255,255,255,.1)"><h3 style="color:#fff">The challenge</h3><p style="color:#D9DEF2">Design a mission, operate it, and feel how decisions interact.</p></div>
-      <div class="tile" style="background:rgba(255,255,255,.1)"><h3 style="color:#fff">Why now</h3><p style="color:#D9DEF2">Small satellites are how schools, startups and communities now reach orbit.</p></div>
-      <div class="tile" style="background:rgba(255,255,255,.1)"><h3 style="color:#fff">What’s next</h3><p style="color:#D9DEF2">Teacher mode, more disaster scenarios, real pass data for classrooms.</p></div>
+      <div class="tile dark"><h3>The challenge</h3><p>Design a mission, operate it, and feel how engineering decisions interact.</p></div>
+      <div class="tile dark"><h3>Why now</h3><p>Small satellites are how schools, startups and communities now reach orbit.</p></div>
+      <div class="tile dark"><h3>What’s next</h3><p>Teacher mode, more disasters (network outages, storms), real pass data.</p></div>
     </div>
-    <h1>Get one message out.</h1>
+    <img class="logo" src="logo-white.png" alt="tether" style="margin-top:8px">
+    <h1>Get the message home.</h1>
     <a class="pill" href="https://tether-ten-sigma.vercel.app/"><span class="ic check deep" style="width:20px;height:20px"></span>Play now: tether-ten-sigma.vercel.app</a>
   </div>
-  <span class="credit">github.com/agapemiteu/Tether · Images: NASA · Scenario fictional</span><span class="n">7 / 7</span>
+  <span class="credit">github.com/agapemiteu/Tether · Images: NASA · Scenario fictional, not a prediction</span><span class="n">7 / 7</span>
 </section>
 
 </body>
