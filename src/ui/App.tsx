@@ -46,7 +46,7 @@ function MapCanvas({ community, relief, onPick, scenario, design, state, beam }:
     i.onload = () => { img.current = i; setFrame((n) => n + 1); };
   }, []);
   // Animate while a beam or pass pulse is visible.
-  const animating = !!beam && performance.now() - beam.at < 2600 || !!state?.activePass;
+  const animating = (!!beam && Math.abs(performance.now() - beam.at) < 2600) || !!state?.activePass;
   useEffect(() => {
     if (!animating) return;
     const id = requestAnimationFrame(() => setFrame((n) => n + 1));
@@ -83,9 +83,9 @@ function MapCanvas({ community, relief, onPick, scenario, design, state, beam }:
     }
     const sites: Record<Site, LatLon | null> = { community, relief };
     // Live transmission beam: green when it lands, red when it fails.
-    if (beam && sat && sites[beam.site] && now - beam.at < 2600) {
+    if (beam && sat && sites[beam.site] && (now - beam.at < 2600 || beam.at > now)) {
       const [x, y] = xy(sites[beam.site]!);
-      const k = Math.min(1, (now - beam.at) / 700);
+      const k = beam.at > now ? 1 : Math.min(1, (now - beam.at) / 700);
       const ex = x + (sat[0] - x) * (beam.ok ? k : Math.min(k, 0.55));
       const ey = y + (sat[1] - y) * (beam.ok ? k : Math.min(k, 0.55));
       g.strokeStyle = beam.ok ? '#1E9E5A' : '#EA373A'; g.lineWidth = 5; g.lineCap = 'round';
@@ -196,6 +196,38 @@ export default function App() {
   const [about, setAbout] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
   const acc = useRef(0);
+
+  // Demo links for judges and screenshots: ?demo=build | fly | sent | win | fail
+  useEffect(() => {
+    const demo = new URLSearchParams(location.search).get('demo');
+    if (!demo) return;
+    const town = { lat: 6.5, lon: 3.4 }; setCommunity(town);
+    if (demo === 'build') { setScreen('workbench'); return; }
+    const ids = demo === 'fail' ? ['tx25', 'bat40', 'orb600'] : ['tx2', 'bat80', 'orb400'];
+    const d: MissionDesign = { community: town, transmitter: byId(ids[0]), battery: byId(ids[1]), orbit: byId(ids[2]) };
+    const sc = buildScenario(town, d.orbit.altitudeKm!); if (!sc) return;
+    setPick({ transmitter: ids[0], battery: ids[1], orbit: ids[2] });
+    let s = createMission(d, sc);
+    if (demo === 'fly' || demo === 'sent') {
+      const c1 = s.passes.find((p) => p.site === 'community')!;
+      while (s.tMin < c1.startMin) s = tick(s, d);
+      if (demo === 'sent') {
+        const r = transmit(s, d); s = r.state;
+        setBeam({ ok: true, site: 'community', at: performance.now() + 60_000 });
+        setFlash({ tone: 'ok', title: 'Sent! Message is on the satellite', text: 'Now wait for the relief station pass.', id: 1 });
+      }
+      seenLog.current = s.log.length; wasInPass.current = true;
+      setDesign(d); setScenario(sc); setState(s); setScreen('console'); return;
+    }
+    // Play the whole mission: disciplined plan for "win", transmit-everywhere for "fail".
+    while (s.outcome === 'running') {
+      const p = s.activePass;
+      const go = demo === 'fail' ? !!p : !!p && (p.site === 'community' ? s.message === 'AT_COMMUNITY' : s.message === 'ON_SATELLITE' && s.reliefOfflineUntilMin === null);
+      if (go) s = transmit(s, d).state;
+      s = tick(s, d);
+    }
+    setDesign(d); setScenario(sc); setState(s); setScreen('receipt');
+  }, []);
   const seenLog = useRef(0);
   const wasInPass = useRef(false);
 
@@ -245,7 +277,7 @@ export default function App() {
     }
   }, [state?.outcome, screen]);
 
-  useEffect(() => { if (flash) { const t = setTimeout(() => setFlash(null), 3600); return () => clearTimeout(t); } }, [flash]);
+  useEffect(() => { if (flash && flash.id !== 1) { const t = setTimeout(() => setFlash(null), 3600); return () => clearTimeout(t); } }, [flash]);
 
   const launch = () => {
     if (!community) return;
