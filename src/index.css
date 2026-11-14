@@ -39,9 +39,26 @@ button.ghost { background: var(--surface); color: var(--text); border: 1px solid
 .modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: grid; place-items: center; padding: 16px; }
 .modal .card { background: var(--surface); max-width: 560px; }
 .credits { color: var(--muted); font-size: 12px; margin-top: 24px; }
-.split { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; align-items: start; }
+.split { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 16px; align-items: start; }
+.materials h3 { font-size: 13px; letter-spacing: .5px; text-transform: uppercase; color: var(--muted); margin: 10px 0 6px; }
+.materials .row { flex-direction: column; gap: 6px; }
+.materials .opt { flex: none; margin: 0; padding: 8px 10px; display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; }
+.materials .opt small, .materials .opt em { grid-column: 1 / -1; font-size: 12px; }
+.materials .opt em { color: var(--muted); }
 .sat { position: sticky; top: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
-.sat h3 { margin-top: 0; } .sat svg { width: 100%; height: auto; }
+.sat h3 { margin-top: 0; } .sat svg { width: 100%; height: auto; max-height: 360px; }
 .sat dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; font-size: 13px; margin: 8px 0 0; }
 .sat dt { font-weight: 600; } .sat dd { margin: 0; color: var(--muted); } .sat dd.ok { color: #1E7A47; } .sat dd.err { color: var(--danger); }
-@media (max-width: 860px) { .split { grid-template-columns: 1fr; } .sat { position: static; } }
+@media (max-width: 760px) {
+  .app { padding: 12px; }
+  h1 { font-size: 26px; }
+  .split { grid-template-columns: 1fr; }
+  .sat { position: static; order: -1; }
+  .materials .row { flex-direction: row; overflow-x: auto; }
+  .materials .opt { min-width: 150px; }
+  .top { gap: 10px; font-size: 14px; }
+  .ctl { flex-direction: column; align-items: stretch; }
+  .tx { width: 100%; }
+  .sticky { gap: 8px; } .sticky button { width: 100%; }
+  .bar { width: 100px; }
+}
